@@ -16,22 +16,14 @@ body {
     height: 100vh;
 }
 
-/* --- 容器 1: 左侧侧边栏 --- */
 .sidebar-container {
     width: 90px;
     height: 100%;
-
-    /* --- 核心修改：深酒红色半透明 --- */
     background: rgba(60, 10, 10, 0.75);
-    /* 深沉的酒红色 */
     backdrop-filter: blur(15px);
-    /* 毛玻璃模糊，增加质感 */
     -webkit-backdrop-filter: blur(15px);
-
-    /* 边框建议使用淡淡的金色，呼应你的按钮和头像 */
     border-right: 2px solid rgba(216, 181, 106, 0.4);
     box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5);
-
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -61,7 +53,6 @@ body {
 .nav-link {
     font-family: 'Georgia', serif;
     color: rgba(255, 255, 255, 0.7);
-    /* 半透明白，作为非激活态 */
     text-decoration: none;
     text-align: center;
     font-size: 11px;
@@ -75,19 +66,15 @@ body {
     margin-bottom: 5px;
 }
 
-/* --- 激活态：亮金色 --- */
 .nav-link.active {
     color: #D8B56A;
-    /* 激活时使用金色，非常亮眼 */
     text-shadow: 0 0 10px rgba(216, 181, 106, 0.5);
 }
 
 .nav-link:hover {
     color: #FFFFFF;
-    /* 悬停时变纯白 */
 }
 
-/* --- 账户头像与气泡 (核心逻辑) --- */
 .account-section {
     position: relative;
 }
@@ -117,11 +104,9 @@ body {
     background-color: #2F4F4F;
 }
 
-/* 气泡 Tooltip */
 .account-tooltip {
     position: absolute;
     left: 70px;
-    /* 弹出在侧边栏右侧 */
     bottom: 5px;
     background: #2F4F4F;
     color: white;
@@ -131,8 +116,6 @@ body {
     font-weight: 600;
     font-size: 14px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-
-    /* 初始隐藏动画 */
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -160,7 +143,6 @@ body {
     padding-left: 12px;
 }
 
-/* --- 容器 2: 右侧内容区 --- */
 .main-display-container {
     position: relative;
     flex: 1;
@@ -178,16 +160,13 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    /* 确保在按钮后面 */
 }
 
 .media-background img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* 保持比例填充 */
     filter: brightness(0.7);
-    /* 稍微调暗背景，让白色文字更清晰 */
 }
 
 .hero-box {
@@ -225,26 +204,20 @@ body {
     box-shadow: 0 15px 40px rgba(216, 181, 106, 0.4);
 }
 
-/* 弹窗遮罩层 */
 .modal-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.7);
-    /* 背景变暗 */
     backdrop-filter: blur(8px);
-    /* 毛玻璃效果 */
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 999;
 }
 
-/* 深红色透明弹窗 */
 .glass-effect {
     background: rgba(60, 10, 10, 0.9);
-    /* 深酒红 */
     border: 2px solid #D8B56A;
-    /* 金色边框 */
     padding: 40px;
     border-radius: 20px;
     text-align: center;
@@ -278,11 +251,9 @@ body {
 
 #reader {
     z-index: 10001;
-    /* 必须比 Modal 还要高 */
     position: relative;
 }
 
-/* 按钮容器布局 */
 .modal-buttons {
     display: flex;
     gap: 20px;
@@ -290,22 +261,17 @@ body {
     margin-top: 25px;
 }
 
-/* --- 确认按钮 (Confirm) --- */
 .btn-pill-small,
 #continueSession,
 #confirmJoin,
 #confirmCreate {
     background-color: #D8B56A;
-    /* 金色背景 */
     color: #1a1a1a;
-    /* 深色文字 */
     border: none;
     padding: 12px 35px;
-    /* 增加左右内边距，让它更像药丸 */
     font-size: 1rem;
     font-weight: bold;
     border-radius: 50px;
-    /* 核心：药丸形状 */
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 10px rgba(216, 181, 106, 0.2);
@@ -316,26 +282,19 @@ body {
 #confirmJoin:hover,
 #confirmCreate:hover {
     background-color: #f1d292;
-    /* 悬停变亮 */
     transform: scale(0.92);
-    /* 悬停轻微上浮 */
     box-shadow: 0 6px 15px rgba(216, 181, 106, 0.4);
 }
 
-/* --- 取消按钮 (Cancel) --- */
 .btn-cancel,
 #closeModal,
 #closeCreateModal {
     background-color: #444;
-    /* 深灰色背景 */
     color: #ffffff;
-    /* 白色文字 */
     border: 1px solid #555;
     padding: 12px 35px;
-    /* 保持与确认按钮一致的内边距 */
     font-size: 1rem;
     border-radius: 50px;
-    /* 核心：药丸形状 */
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -344,12 +303,10 @@ body {
 #closeModal:hover,
 #closeCreateModal:hover {
     background-color: #cc0000;
-    /* 悬停时变红 (提示危险/取消) */
     border-color: #ff4d4d;
     transform: scale(0.95);
 }
 
-/* 点击时的缩放效果 (可选) */
 #confirmJoin:active,
 #confirmCreate:active,
 .btn-cancel:active {

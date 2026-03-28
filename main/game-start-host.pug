@@ -8,18 +8,15 @@ html
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
   body
     .game-layout
-      // --- 背景图层 ---
       .game-background
         img(src="/images/image1.png") 
 
-      // --- 顶部状态栏 ---
       header.game-header
         .round-info
           span CURRENT ROUND:
           input#roundInput(type="number" value=room.round_number || 1 readonly)
         button#ruleBtn.btn-circle: i.fas.fa-scroll
 
-      // --- 核心功能区 (网格布局) ---
       main.game-controls
         button.btn-feature(onclick="openMonitorModal()")
           i.fas.fa-users-viewfinder
@@ -37,13 +34,11 @@ html
           i.fas.fa-gem
           span Treasure Locations
 
-      // --- 底部控制栏 ---
       footer.game-footer
         button#exitBtn.btn-nav EXIT
         button#endGameBtn.btn-pill-red(style="display: none;" onclick="confirmEndGame()") END GAME
         button#nextRoundBtn.btn-pill-gold NEXT ROUND
 
-      //- 自定义红色警告弹窗
       #customModal.modal-overlay(style="display: none;")
         .modal-box
           i.fas.fa-exclamation-circle.modal-icon
@@ -55,13 +50,12 @@ html
             button#modalConfirm.btn-modal-primary CONFIRM
             button#modalCancel.btn-modal-secondary CANCEL
 
-      //- Special Cell 查询弹窗
+      //- Special Cell 
       #specialCellModal.modal-overlay(style="display: none;")
         .special-box
           header.special-header
             i.fas.fa-key
             h2 SPECIAL CELL VERIFIER
-          //- 独立的关闭按钮
           button.close-special(onclick="closeSpecialModal()") &times;
           
           .search-container
@@ -71,11 +65,9 @@ html
             .table-head-row
               span(style="color: #D8B56A;") CELL NO.
               span(style="color: #D8B56A;") VERIFY CODE
-            //- 数据容器
             #cellTableBody
-            //- JS 会在这里插入数据
 
-      //- Treasure Locations 查询弹窗
+      //- Treasure Locations 
       #treasureModal.modal-overlay(style="display: none;")
         .special-box
           header.special-header
@@ -92,14 +84,13 @@ html
               span(style="color: #D8B56A;") STATUS
             #treasureTableBody
 
-      //- Shop Access Code 弹窗
+      //- Shop Access Code 
       #shopModal.modal-overlay(style="display: none;")
         .shop-box
           header.shop-header
             i.fas.fa-store
             h2 SHOP ACCESS
-          
-          //- 右上角的大关闭按钮
+
           button.close-special(onclick="closeShopModal()") &times;
           
           .shop-body
@@ -133,6 +124,5 @@ html
                 //- Data injected by JS
 
     script.
-      // 这一行非常重要！它把后端的 session_id 传给前端 JS
       const roomSessionId = "#{room.session_id}";
     script(src="/js/game-host.js")

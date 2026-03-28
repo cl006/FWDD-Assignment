@@ -3,9 +3,7 @@ html
   head
     title Level Selection | Adventure Dashboard
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
-    //- 1. 引入分离后的 CSS
     link(rel="stylesheet", href="/css/question-level.css")
-    //- 2. 引入 FontAwesome 图标
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
 
   body
@@ -13,31 +11,26 @@ html
       h1.level-title CHOOSE YOUR FATE
       
       .card-wrap
-        //- Normal 选项
+        //- Normal
         .level-card(onclick="startChallenge('Easy')")
           i.fas.fa-scroll(style="font-size: 3.5rem; color: #3e2b1c;")
           h2 Normal
           p (3 Questions)
           
-        //- Challenge 选项
+        //- Challenge
         .level-card(onclick="startChallenge('Challenge')")
           i.fas.fa-khanda(style="font-size: 3.5rem; color: #3e2b1c;")
           h2 Challenge
           p (3 Tougher Tasks)
 
     script.
-      // 获取后端传入的 sessionId
       const SESSION_ID = "#{sessionId}"; 
 
       function startChallenge(selectedLevel) {
-          // 1. 获取 URL 中的参数 (默认为 ROUND)
           const params = new URLSearchParams(window.location.search);
           const mode = params.get('mode') || 'ROUND';
           
-          // 2. 轮次挑战统一为 3 道题
           const count = 3; 
 
-          // 3. ✅ 携带所有核心参数跳转
-          // 路由格式: /question-page/S0001?level=Easy&mode=ROUND&count=3
           window.location.href = `/question-page/${SESSION_ID}?level=${selectedLevel}&mode=${mode}&count=${count}`;
       }

@@ -1,4 +1,3 @@
-/* 通用基础样式 */
 body {
     background: #0f0f0f;
     color: white;
@@ -15,9 +14,6 @@ body {
     background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
 }
 
-/* 移除原来的 .timer-container 和 .timer-circle */
-
-/* 顶部状态标识 */
 .badge {
     color: #D8B56A;
     font-weight: bold;
@@ -25,7 +21,6 @@ body {
     margin-bottom: 20px;
 }
 
-/* 题目文字 */
 #questionText {
     margin: 30px 0;
     font-size: 1.8rem;
@@ -34,14 +29,12 @@ body {
     text-align: center;
 }
 
-/* --- 核心响应式布局：Laptop 2x2 / Mobile 1x4 --- */
 .options-grid {
     display: grid;
     width: 100%;
     max-width: 900px;
     gap: 20px;
     grid-template-columns: repeat(2, 1fr);
-    /* 默认 2x2 */
 }
 
 .treasure-overlay {
@@ -131,11 +124,9 @@ body {
 @media (max-width: 768px) {
     .options-grid {
         grid-template-columns: 1fr;
-        /* 手机 1x4 */
     }
 }
 
-/* 按钮基础样式 (药丸形状) */
 .option-btn {
     background: rgba(255, 255, 255, 0.05);
     border: 2px solid rgba(216, 181, 106, 0.3);
@@ -152,9 +143,6 @@ body {
     border-color: #D8B56A;
 }
 
-/* --- 关键：反馈颜色状态 --- */
-
-/* 正确答案变绿 */
 .option-btn.correct {
     background-color: #2ecc71 !important;
     border-color: #27ae60 !important;
@@ -162,20 +150,17 @@ body {
     font-weight: bold;
 }
 
-/* 错误选择变红 */
 .option-btn.wrong {
     background-color: #e74c3c !important;
     border-color: #c0392b !important;
     color: white !important;
 }
 
-/* 答题后禁用按钮的样式 */
 .option-btn:disabled {
     cursor: default;
     opacity: 0.8;
 }
 
-/* 解释区域样式 */
 .explanation-box {
     margin-top: 40px;
     width: 100%;

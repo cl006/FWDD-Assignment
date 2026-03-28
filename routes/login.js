@@ -23,7 +23,7 @@ module.exports = (db) => {
                 if (user.password === password) {
                     req.session.username = user.username;
                     req.session.loggedin = true;
-                    req.session.user_id = results[0].user_id; // <--- 必须有这一行！
+                    req.session.user_id = results[0].user_id;
 
                     req.session.save((err) => {
                         if (err) {

@@ -6,38 +6,30 @@ html(lang="en")
     link(rel="stylesheet", href="/css/question.css")
   body
     .question-page-wrapper
-      //- 1. 顶部状态栏 (显示难度和进度)
       .status-bar
         #levelBadge.badge LOADING...
         #progressText.progress-text 
       
       .question-content
-        //- 2. 题目文本
         h2#questionText -- Loading Your Challenge --
         
-        //- 3. 选项区域 (Laptop 2x2 / Mobile 1x4)
-        //- 注意：这里不再传 'A','B'，而是由 JS 根据数据库内容填充
         .options-grid
           button#opt0.option-btn --
           button#opt1.option-btn --
           button#opt2.option-btn --
           button#opt3.option-btn --
         
-        //- 4. 解释与控制区域 (初始隐藏)
         #explanationBox.explanation-box(style="display: none;")
           .exp-header
             span#resultStatus Result: 
           p#explanationText ...
           
-          //- 这个按钮会根据题目序号自动切换文字 (Next 或 Close)
           button#actionBtn.btn-continue(onclick="nextStep()") CONTINUE
         
-        //- 宝箱奖励弹窗层
         #treasure-modal.treasure-overlay(style="display: none;")
           .treasure-card
             button.close-treasure(onclick="closeTreasure()") ×
             .card-image-area
-              //- 这里会根据获得的卡片动态更换图标
               i#treasure-icon.fas.fa-gem
               h3#treasure-name Card Name
             .card-info
@@ -47,15 +39,12 @@ html(lang="en")
                 span#treasure-value 0
               button.btn-claim(onclick="closeTreasure()") CLAIM REWARD
 
-    //- 传给外部 JS 的变量
     script.
       const SESSION_ID = "#{sessionId}";
       const PLAYER_ID = "#{playerId}";
       const ROOM_CODE = "#{roomCode}";
-      //- 从 URL 获取模式 (SPECIAL 为扫码, ROUND 为轮次)
       const urlParams = new URLSearchParams(window.location.search);
       const MODE = urlParams.get('mode') || 'SPECIAL'; 
       const LEVEL = urlParams.get('level') || 'Easy';
 
-    //- 引入逻辑文件
     script(src="/js/question-logic.js")

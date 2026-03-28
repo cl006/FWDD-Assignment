@@ -1,4 +1,3 @@
-/* --- 基础重置 --- */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -17,7 +16,6 @@ body {
     height: 100vh;
 }
 
-/* --- 侧边栏：深酒红色半透明 (对齐首页) --- */
 .sidebar-container {
     width: 90px;
     height: 100%;
@@ -102,7 +100,6 @@ body {
     animation: slowZoom 20s infinite ease-in-out;
 }
 
-/* 顶部状态药丸 */
 .status-header-overlay {
     position: absolute;
     top: 30px;
@@ -120,10 +117,8 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* 中间玻璃信息卡片 */
 .info-glass-card {
     background: rgba(60, 10, 10, 0.4);
-    /* 深酒红玻璃感 */
     backdrop-filter: blur(15px);
     border: 1px solid rgba(216, 181, 106, 0.3);
     padding: 60px;
@@ -139,7 +134,6 @@ body {
 .info-row label {
     display: block;
     color: #D8B56A;
-    /* 金色文字 */
     font-size: 0.9rem;
     letter-spacing: 2px;
     margin-bottom: 10px;
@@ -153,7 +147,6 @@ body {
     padding: 0 30px;
 }
 
-/* 大药丸按钮 (对齐首页) */
 .btn-pill {
     width: 100%;
     margin-top: 20px;
@@ -175,35 +168,24 @@ body {
     box-shadow: 0 15px 40px rgba(216, 181, 106, 0.4);
 }
 
-/* --- 右下角规则按钮 --- */
 .rules-btn {
     position: absolute;
     bottom: 30px;
-    /* 距离底部 30px */
     right: 40px;
-    /* 距离右侧 40px */
-
-    /* 样式：深酒红背景 (对齐侧边栏) */
     background: rgba(60, 10, 10, 0.8);
     backdrop-filter: blur(10px);
-
-    /* 边框：金色 (对齐首页按钮) */
     border: 2px solid #D8B56A;
     color: #D8B56A;
-
     padding: 12px 25px;
     border-radius: 50px;
-    /* 药丸形状 */
     font-family: 'Georgia', serif;
     font-size: 0.9rem;
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
-
     display: flex;
     align-items: center;
     gap: 8px;
-
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
     transition: all 0.3s ease;
     z-index: 10;
@@ -213,11 +195,9 @@ body {
     font-size: 1.1rem;
 }
 
-/* 悬停效果：亮金色发光 */
 .rules-btn:hover {
     background: #D8B56A;
     color: #3C0A0A;
-    /* 文字变深色 */
     transform: translateY(-5px) scale(1.05);
     box-shadow: 0 8px 25px rgba(216, 181, 106, 0.6);
 }
@@ -232,7 +212,6 @@ body {
     text-align: center;
 }
 
-/* 针对手动输入框的微调 */
 .manual-input-group input::placeholder {
     color: rgba(255, 255, 255, 0.4);
     font-size: 0.75rem;
@@ -244,16 +223,12 @@ body {
     transition: 0.1s;
 }
 
-/* --- 修改后的背包样式 (更符合你的游戏风格) --- */
-
 .bag-container {
     width: 95%;
     max-width: 900px;
     height: 70vh;
-    /* 替换为羊皮纸质感颜色 */
     background: #fdf6e3;
     border: 3px solid #D8B56A;
-    /* 金色边框 */
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -263,18 +238,14 @@ body {
 
 .bag-content {
     flex: 1;
-    /* 占据中间所有剩余空间 */
     overflow-y: auto;
-    /* 开启垂直滚动 */
     padding: 15px;
     background: rgba(0, 0, 0, 0.2);
-    /* 稍微加深背景区分滚动区 */
 }
 
 .bag-tabs {
     display: flex;
     background: #3c0a0a;
-    /* 使用和你侧边栏一样的深酒红色 */
     padding: 5px 5px 0 5px;
 }
 
@@ -282,7 +253,6 @@ body {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.85);
-    /* 💡 必须大于 9999 才能盖住侧边栏 */
     z-index: 10001;
     display: flex;
     justify-content: center;
@@ -293,13 +263,10 @@ body {
 .bag-grid {
     display: grid;
     grid-template-columns: 1fr;
-    /* 手机端一列展示 */
     gap: 15px;
     padding-bottom: 20px;
-    /* 底部留白，防止被按钮遮挡 */
 }
 
-/* 4. 美化滚动条 (可选，让它看起来更符合游戏风格) */
 .bag-content::-webkit-scrollbar {
     width: 6px;
 }
@@ -321,7 +288,6 @@ body {
     border: none;
     background: transparent;
     color: rgba(216, 181, 106, 0.6);
-    /* 没选中的时候是暗金色 */
     cursor: pointer;
     transition: 0.3s;
     text-transform: uppercase;
@@ -330,9 +296,7 @@ body {
 
 .tab-btn.active {
     background: #fdf6e3;
-    /* 选中时变成羊皮纸色，与内容区融为一体 */
     color: #3c0a0a;
-    /* 文字变深红 */
     border-radius: 12px 12px 0 0;
     box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
 }
@@ -359,7 +323,6 @@ body {
     box-shadow: 0 5px 15px rgba(216, 181, 106, 0.3);
 }
 
-/* 退出按钮美化 */
 .exit-btn {
     margin: 15px;
     padding: 10px 40px;
@@ -377,7 +340,6 @@ body {
     color: #3c0a0a;
 }
 
-/* 红色发光按钮样式 */
 .btn-pill-red {
     background: #e74c3c;
     color: white;
@@ -390,7 +352,6 @@ body {
     text-transform: uppercase;
     box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
     transition: 0.3s;
-    /* 强烈的发光动画 */
     animation: endBtnGlow 2s infinite ease-in-out;
 }
 
@@ -416,42 +377,143 @@ body {
     box-shadow: 0 0 30px rgba(255, 77, 77, 0.8);
 }
 
-/* --- 手机移动端适配 --- */
-/* --- 移动端适配 (完全同步首页逻辑) --- */
+.rules-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 20000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rules-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 20000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rules-container {
+    width: 85%;
+    max-width: 500px;
+    background: #1a1a1a;
+    border: 2px solid #D8B56A;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
+    overflow: hidden;
+}
+
+.rules-header {
+    padding: 15px;
+    text-align: center;
+    background: #1a1a1a;
+    border-bottom: 2px solid #D8B56A;
+}
+
+.rules-header h2 {
+    color: #D8B56A;
+    margin: 0;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.rules-scroll-area {
+    padding: 20px;
+    overflow-y: auto;
+    /* ✅ Changed background to light parchment so #2F4F4F text is visible */
+    background: #F5E6BE;
+    /* ✅ Main word color set to #2F4F4F */
+    color: #2F4F4F;
+    line-height: 1.6;
+    flex: 1;
+    font-weight: 500;
+}
+
+.rules-scroll-area h3 {
+    /* Headings kept in a darker gold/bronze for contrast */
+    color: #8B4513;
+    font-size: 1.1rem;
+    margin-top: 15px;
+    border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+    padding-bottom: 5px;
+}
+
+.rules-scroll-area p,
+.rules-scroll-area li {
+    color: #2F4F4F;
+    margin-bottom: 10px;
+}
+
+/* Custom Scrollbar for the parchment area */
+.rules-scroll-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.rules-scroll-area::-webkit-scrollbar-track {
+    background: #E8D5A5;
+}
+
+.rules-scroll-area::-webkit-scrollbar-thumb {
+    background: #8B4513;
+    border-radius: 10px;
+}
+
+.rules-footer {
+    padding: 15px;
+    text-align: center;
+    background: #1a1a1a;
+    border-top: 2px solid #D8B56A;
+}
+
+.exit-btn {
+    background: #D8B56A;
+    color: #1a1a1a;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
 @media (max-width: 768px) {
 
-    /* 1. 侧边栏缩窄，不改变位置 */
     .sidebar-container {
         width: 65px;
         padding-top: 40px;
-        /* 移动端顶部留白减少 */
     }
 
-    /* 缩小侧边栏内的图标 */
     .nav-link i {
         font-size: 20px;
     }
 
     .nav-link span {
         font-size: 9px;
-        /* 文字更小 */
     }
 
     .nav-group {
         gap: 25px;
-        /* 间距收紧 */
     }
 
-    /* 2. 主内容区域适配侧边栏宽度 */
     .main-display-container {
         margin-left: 65px;
-        /* 对应侧边栏的 65px */
         padding: 15px;
         align-items: center;
-        /* 保持居中，或改为 flex-start 如果你想靠上 */
     }
 
-    /* 3. 顶部状态药丸适配 */
     .status-header-overlay {
         top: 10px;
         right: 15px;
@@ -474,7 +536,6 @@ body {
 
     .value-text {
         font-size: 1.5rem;
-        /* 减小字号防止溢出 */
         padding: 0 10px;
     }
 
@@ -482,15 +543,12 @@ body {
         font-size: 0.7rem;
     }
 
-    /* 5. 扫描按钮 (大药丸按钮适配首页) */
     .btn-pill {
         width: 100%;
-        /* 在卡片内铺满 */
         font-size: 1.2rem;
         padding: 12px;
     }
 
-    /* 6. 头像气泡适配 */
     .account-tooltip {
         left: 55px;
         font-size: 11px;
@@ -502,7 +560,6 @@ body {
         font-size: 16px;
     }
 
-    /* 7. 规则按钮 */
     .rules-btn {
         bottom: 20px;
         right: 20px;

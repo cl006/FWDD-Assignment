@@ -4,12 +4,10 @@ html
     title Waiting Session - Host
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     link(rel="stylesheet", href="/css/session-host.css")
-    //- 引入 QR Code 库
     script(src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js")
   body
     .host-wrapper
       .host-container
-        //- 顶部：房间标题和二维码
         .header-section
           .title-group
             h1 Game Session Code :
@@ -20,23 +18,19 @@ html
               canvas#qrCanvas
             .room-code-text= roomCode
 
-        //- 中部：玩家列表
         .players-grid#playersGrid
           each val in [1, 2, 3, 4, 5, 6]
             .player-slot(id=`slot-${val}`)
               span.waiting-text Waiting...
 
-        //- 底部：操作栏
         .footer-section
           button#exitBtn.btn-pill-exit EXIT
           .host-id-group
             span Host ID: 
-            //- 这里改为 room.user_id (对应数据库字段)
             span.id-display= room.host_user_id
           button#startBtn.btn-pill-start START
 
     script.
-      // 这里的 session 统一改为 room
       const SESSION_ID = "#{room.session_id}";
       const ROOM_CODE = "#{roomCode}";
     script(src="/js/session-host.js")

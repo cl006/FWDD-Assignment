@@ -7,7 +7,6 @@ html(lang="en")
     link(rel="stylesheet", href="/css/shop.css")
   body
     .shop-wrapper
-      //- 顶部：余额与标题
       header.shop-header
         button.back-btn(onclick="history.back()") 
           i.fas.fa-chevron-left
@@ -16,19 +15,15 @@ html(lang="en")
           i.fas.fa-coins
           span#coinCount= playerCoins
 
-      //- 中间：商品滚动区域
       main.shop-main
         button.nav-btn.prev(onclick="scrollShop(-1)") ‹
         #itemsContainer.items-grid
-          //- 由 JS 动态填充
         button.nav-btn.next(onclick="scrollShop(1)") ›
 
-      //- 底部：操作按钮
       footer.shop-actions
         button.btn-exit(onclick=`window.location.href='/game-start-player/${sessionId}'`) Exit
         button.btn-purchase(onclick="processPurchase()") PURCHASE
 
-    //- 变量注入
     script.
       const SHOP_TYPE = "#{shopType}"; // 'clue', 'movement', 'swap'
       const SESSION_ID = "#{sessionId}";

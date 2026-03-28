@@ -1,12 +1,10 @@
 doctype html
-doctype html
 html
   head
     title Adventure Dashboard
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     link(rel="stylesheet", href="/css/game-player.css")
     link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
-    //- 1. 确保库在这里引入
     script(src="https://unpkg.com/html5-qrcode")
   body
     .layout-container
@@ -31,12 +29,10 @@ html
             .divider
             .stat-item
               span.icon ✪
-              span.label `Coins: ${player.coins}`
+              span.label Coins: #{player.coins}
 
-        //- 中间核心展示区 (Hero Box 模式)
         .hero-box(style="z-index: 100;") 
           .info-glass-card
-            //- 1. 玩家基本信息展示
             .info-row
               label CURRENT ROUND
               span.value-text= room.round_number
@@ -46,16 +42,13 @@ html
             
             hr(style="border: 0; border-top: 1px solid rgba(216, 181, 106, 0.2); margin: 15px 0;")
 
-            //- 2. 交互区域 (根据设备自动切换)
             .interaction-zone
-              //- 手机版：显示大药丸扫码按钮
               .mobile-only(style="display: none;")
                 button.btn-pill.btn-scan(type="button" style="cursor: pointer;")
                   i.fas.fa-qrcode 
                   |  SCAN QR CODE
                 p.hint-text(style="font-size: 0.7rem; color: #D8B56A; margin-top: 8px; opacity: 0.8;") Scan physical qr code to next page 
 
-              //- 电脑版：显示手动输入框
               .desktop-only(style="display: none;")
                 p(style="font-size: 0.8rem; color: #D8B56A; margin-bottom: 10px;") Manual Entry Mode
                 .manual-input-group(style="display: flex; gap: 10px;")
@@ -65,27 +58,72 @@ html
                   i.fas.fa-unlock-alt
                   |  UNLOCK CELL
 
-        //- 右下角规则按钮
-        button.rules-btn Rule of Game
+        button.rules-btn(onclick="openRules()") Rule of Game
+
+    //- --- RULES MODAL START ---
+    #rules-modal.bag-overlay(style="display: none;")
+      .bag-container(style="max-width: 500px; height: 75vh; display: flex; flex-direction: column;")
+        .bag-tabs
+          button.tab-btn.active RULE OF THE GAMES
+        
+        .rules-scroll-area(style="padding: 20px; color: #eee; line-height: 1.6; font-family: 'Cinzel', serif; overflow-y: auto; flex: 1;")
+          h2(style="text-align:center; color:#D8B56A; border-bottom:2px solid #D8B56A; padding-bottom:15px; text-transform: uppercase;") 📜 Rule of the Games
+
+          section(style="margin-bottom: 25px;")
+            h3(style="color:#D8B56A;") 🎲 1. MOVEMENT & SCANNING
+            p Roll **2 Dice** to move your character on the physical map. Once you land on a cell, click **SCAN QR** on your dashboard. After a successful scan, approach the **Host** to receive your **Physical Card** or rewards.
+
+          section(style="margin-bottom: 25px;")
+            h3(style="color:#f39c12;") ⚔️ 2. QUESTION CHALLENGE (RD 2, 4, 6)
+            p At the start of these rounds, you must complete a **3-Question Challenge**. Choose your difficulty:
+            ul(style="list-style: none; padding-left: 10px;")
+              li 🟢 **Easy Mode**: Lower difficulty, smaller rewards.
+              li 🔴 **Challenge Mode**: Higher difficulty, massive rewards.
+            p *After finishing the questions, you will return to the dashboard to continue your physical move and scan Shop or Special cells.*
+
+          section(style="margin-bottom: 25px;")
+            h3(style="color:#D8B56A;") 💰 3. THE SHOP (TRADING POST)
+            p Scanning a Shop cell allows you to enter the trading interface **without answering any questions**. You can spend your **Coins** here to buy item cards. Remember to collect your physical cards from the Host after purchase.
+
+          section(style="margin-bottom: 25px;")
+            h3(style="color:#D8B56A;") 🌟 4. SPECIAL CELLS
+            p These cells are locked by riddles. After scanning, you must answer a **Question** to unlock the rewards. 
+            ul(style="list-style: none; padding-left: 10px;")
+              li ✅ **Correct**: Receive Coins and random Physical Cards.
+              li ❌ **Wrong**: The cell stays locked and **nothing happens** for this turn.
+
+          section(style="margin-bottom: 25px;")
+            h3(style="color:#D8B56A;") 🎴 5. CARD MANUAL (ITEMS)
+            //- Added color: #2F4F4F to the card-item containers
+            .card-item(style="background:rgba(216, 181, 106, 0.15); padding:10px; border-radius:5px; margin-bottom:10px; border-left: 3px solid #D8B56A; color: #2F4F4F;")
+              strong(style="color: #2F4F4F;") 🔍 Verify Card: 
+              | Use only in **Rd 5 & 7**. Give the card and a **Treasure ID** to the Host. The Host signals **1 for REAL** or **0 for FAKE**.
+            
+            .card-item(style="background:rgba(216, 181, 106, 0.15); padding:10px; border-radius:5px; margin-bottom:10px; border-left: 3px solid #D8B56A; color: #2F4F4F;")
+              strong(style="color: #2F4F4F;") 🥾 Movement Card: 
+              | Show to the Host **before rolling the dice** to add extra steps to your total movement.
+
+          section(style="margin-bottom: 25px;")
+            h3(style="color:#D8B56A;") 🏆 6. WINNING CONDITIONS
+            p The winner is the player with the **Most Real Treasures**. 
+            p *In the event of a tie, the player with the highest **Total Coins** will be declared the winner.*
+        
+        .bag-footer
+          button.exit-btn(onclick="closeRules()") Exit
 
     #bag-modal.bag-overlay(style="display: none;")
       .bag-container
-        //- 顶部切换标签
         .bag-tabs
           button.tab-btn.active(onclick="switchTab('cards')") My Cards
           button.tab-btn(onclick="switchTab('clues')") My Clues
           button.tab-btn(onclick="switchTab('treasures')") My Treasure
         
-        //- 内容展示区域
         .bag-content
           #bag-grid.bag-grid
-            //- 这里由 JS 动态填充卡片
           
-        //- 底部退出按钮
         .bag-footer
           button.exit-btn(onclick="closeBag()") Exit
 
-    //- 3. 修正：扫描容器必须在 body 内，且包含在 #qr-reader-container 中
     #qr-reader-container(style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; flex-direction:column; align-items:center; justify-content:center;")
       #qr-reader(style="width: 300px; background: white; border: 2px solid #D8B56A;")
       button#close-scanner.btn-pill(style="margin-top: 20px; background: #666; cursor: pointer;") CLOSE
@@ -94,5 +132,12 @@ html
       const SESSION_ID = "#{room.session_id}";
       const MY_PLAYER_NAME = "#{player.player_name}";
       const ROOM_ACCESS_CODE = "#{room.session_access_code}";
+
+      function openRules() {
+        document.getElementById('rules-modal').style.display = 'flex';
+      }
+      function closeRules() {
+        document.getElementById('rules-modal').style.display = 'none';
+      }
 
     script(src="/js/game-player.js")

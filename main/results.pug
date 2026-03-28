@@ -11,7 +11,6 @@ html
         .crown-icon: i.fas.fa-crown
         h1 THE ULTIMATE EXPLORER
         .winner-card
-          //- 💡 使用从 players 表拿到的 img_id 渲染头像
           img(src="/images/" + (winner.img_id || 1) + ".png" class="winner-avatar")
           h2= winner.player_name
           p.winner-stat Found #{winner.real_treasures} Real Treasures!
@@ -35,7 +34,6 @@ html
                   td.rank-num= index + 1
                   td.player-cell
                     .player-badge
-                      //- 💡 排行榜里也加上玩家的小头像
                       img(src="/images/" + (player.img_id || 1) + ".png" class="mini-avatar")
                       span= player.player_name
                   td.stat-highlight= player.real_treasures

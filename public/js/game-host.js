@@ -1,9 +1,8 @@
 /**
- * 自定义弹窗辅助函数
- * @param {string} title - 标题
- * @param {string} msg - 消息内容
- * @param {boolean} isPrompt - 是否需要输入框
- * @returns {Promise} - 返回输入内容或布尔值
+ * @param {string} title
+ * @param {string} msg 
+ * @param {boolean} isPrompt 
+ * @returns {Promise} 
  */
 function showModal(title, msg, isPrompt = false) {
     return new Promise((resolve) => {
@@ -14,27 +13,23 @@ function showModal(title, msg, isPrompt = false) {
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalMessage').innerText = msg;
         inputContainer.style.display = isPrompt ? 'block' : 'none';
-        inputField.value = ""; // 重置输入框内容
+        inputField.value = "";
 
         modal.style.display = 'flex';
 
-        // 确认点击
         document.getElementById('modalConfirm').onclick = () => {
             modal.style.display = 'none';
             resolve(isPrompt ? inputField.value : true);
         };
 
-        // 取消点击
         document.getElementById('modalCancel').onclick = () => {
             modal.style.display = 'none';
-            resolve(null); // 返回空表示取消
+            resolve(null);
         };
     });
 }
 
-// --- EXIT 按钮逻辑 ---
 document.getElementById('exitBtn').onclick = async () => {
-    // 替代第一个 confirm
     const wantToEnd = await showModal("TERMINATE SESSION?", "Do you want to END the game permanently and record the time?");
 
     if (wantToEnd) {
@@ -53,7 +48,6 @@ document.getElementById('exitBtn').onclick = async () => {
             console.error("Error:", err);
         }
     } else {
-        // 替代第二个 confirm
         const wantToLeave = await showModal("PAUSE GAME?", "Temporary leave the dashboard? (Players can stay)");
 
         if (wantToLeave) {
@@ -64,17 +58,12 @@ document.getElementById('exitBtn').onclick = async () => {
     }
 };
 
-// --- NEXT ROUND 按钮逻辑 ---
-// --- NEXT ROUND 按钮逻辑 (优化版) ---
 document.getElementById('nextRoundBtn').onclick = async () => {
-    // 1. 确认所有玩家是否完成
     const isFinished = await showModal("NEXT ROUND", "Does everyone finish their round?");
 
     if (isFinished === true) {
-        // 2. 身份验证：输入 Host ID
         const hostIdInput = await showModal("SECURITY CHECK", "Please enter Host User ID to confirm:", true);
 
-        // 如果用户点击取消或未输入任何内容，直接退出
         if (!hostIdInput) return;
 
         if (!roomSessionId) {
@@ -95,19 +84,15 @@ document.getElementById('nextRoundBtn').onclick = async () => {
             const data = await response.json();
 
             if (data.success) {
-                // 3. 更新界面上的回合数显示
                 const inputField = document.getElementById('roundInput');
                 if (inputField) {
                     inputField.value = data.newRound;
 
-                    // 💡 关键：回合数更新后，立即触发底部按钮状态检查
-                    // 这样如果到了 Round 7，END GAME 按钮会立刻显示
                     updateBottomButtons();
                 }
 
                 await showModal("SUCCESS", `Round ${data.newRound} has officially started!`);
             } else {
-                // 如果后端验证失败（比如 Host ID 错误）
                 await showModal("DENIED", data.message || "Unauthorized access.");
             }
         } catch (err) {
@@ -129,7 +114,6 @@ async function openSpecialModal() {
         const data = await response.json();
 
         if (data.success) {
-            // 使用 div 结构配合 flex 布局实现左右分布
             container.innerHTML = data.cells.map(item => `
                 <div class="cell-row">
                     <span class="cell-name">${item.cell_no}</span>
@@ -169,9 +153,8 @@ async function openTreasureModal() {
 
         if (data.success) {
             container.innerHTML = data.treasures.map(item => {
-                // 根据真假判断颜色和文字
                 const statusText = item.is_real ? "REAL" : "FAKE";
-                const statusColor = item.is_real ? "#2ecc71" : "#95a5a6"; // 真为绿色，假为灰色
+                const statusColor = item.is_real ? "#2ecc71" : "#95a5a6";
 
                 return `
                     <div class="cell-row treasure-row">
@@ -203,22 +186,19 @@ function closeTreasureModal() {
     document.getElementById('treasureModal').style.display = 'none';
 }
 
-// --- Shop Modal 逻辑 ---
 async function openShopModal() {
     const modal = document.getElementById('shopModal');
     const display = document.getElementById('displayShopCode');
 
-    // 显示弹窗并重置文字
     modal.style.display = 'flex';
     display.innerText = "....";
 
     try {
-        // 确保你的后端有这个 /shop-code/ 接口
         const response = await fetch(`/shop-code/${roomSessionId}`);
         const data = await response.json();
 
         if (data.success) {
-            display.innerText = data.shopCode; // 数据库中的验证码
+            display.innerText = data.shopCode;
         } else {
             display.innerText = "N/A";
         }
@@ -249,7 +229,6 @@ function closeMonitorModal() {
 async function updateMonitor() {
     const round = document.getElementById('monitorRoundPicker').value;
     try {
-        // 注意：确保 roomSessionId 在前端已经定义（通常在 Pug 的 script 标签里）
         const response = await fetch(`/host/monitor/${roomSessionId}?round=${round}`);
         const result = await response.json();
 
@@ -272,9 +251,8 @@ async function updateMonitor() {
                 </tr>
             `).join('');
 
-            // 更新下拉框：只有当选项数量不够时才添加
             const picker = document.getElementById('monitorRoundPicker');
-            const currentOptionsCount = picker.options.length - 1; // 减去 "All Rounds"
+            const currentOptionsCount = picker.options.length - 1;
             if (currentOptionsCount < result.currentRound) {
                 for (let i = currentOptionsCount + 1; i <= result.currentRound; i++) {
                     picker.add(new Option(`Round ${i}`, i));
@@ -286,20 +264,16 @@ async function updateMonitor() {
     }
 }
 
-// 处理结束游戏的点击
 async function confirmEndGame() {
-    // 1. 弹出确认框
     const isSure = await showModal("FINAL SETTLEMENT", "Are you sure you want to END the game? This will calculate rankings based on treasures and coins.", false);
 
     if (isSure) {
         try {
-            // 2. 调用带有排名计算逻辑的后端接口
             const response = await fetch(`/end/${roomSessionId}`, { method: 'POST' });
             const result = await response.json();
 
             if (result.success) {
                 await showModal("GAME CONCLUDED", "Rankings have been calculated. Moving to the results hall...");
-                // 3. 跳转到结果页
                 window.location.href = `/results/${roomSessionId}`;
             } else {
                 await showModal("ERROR", "Failed to finalize game data.");
@@ -311,7 +285,6 @@ async function confirmEndGame() {
     }
 }
 
-// 修改你的 updateBottomButtons 确保它能响应 Round 变化
 function updateBottomButtons() {
     const roundInput = document.getElementById('roundInput');
     if (!roundInput) return;
@@ -320,7 +293,6 @@ function updateBottomButtons() {
     const exitBtn = document.getElementById('exitBtn');
     const endBtn = document.getElementById('endGameBtn');
 
-    // 💡 只有在第 7 轮或以上时切换按钮
     if (currentRound >= 7) {
         if (exitBtn) exitBtn.style.display = 'none';
         if (endBtn) endBtn.style.display = 'block';
@@ -330,11 +302,7 @@ function updateBottomButtons() {
     }
 }
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 初始化底部按钮状态
     updateBottomButtons();
 
-    // 2. 绑定 Next Round 按钮（因为你之前是用 .onclick 绑定的，这里确保 ID 正确）
     const nextBtn = document.getElementById('nextRoundBtn');
-    // 如果你在上面的代码中已经写了 nextBtn.onclick，这里可以省略，
-    // 但建议检查是否所有的按钮都在 DOM 加载后正确绑定。
 });

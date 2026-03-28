@@ -12,20 +12,16 @@ html
     .player-waiting-container
       .header-section
         h1 Game Session ID: 
-        //- 这里建议直接用 room.session_id，更准确
         span.id-underline= room.session_id
 
       .players-pill-grid#playersList
-        //- 这里由 JS 动态渲染玩家药丸
 
       .footer-section
         button#exitBtn.btn-pill-exit EXIT
         .status-msg Waiting Others Player Join
-        //- 这里改为从 room 对象读取房主 ID
         .host-id-tag= room.user_id
       
     script.
-      // 统一引用 room 对象
       const SESSION_ID = "#{room.session_id}";
       const MY_USER_ID = "#{player.user_id}";
     script(src="/js/session-player.js")

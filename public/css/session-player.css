@@ -1,4 +1,3 @@
-/* 1. 基础重置 */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -10,9 +9,7 @@ body {
     padding: 15px;
     background-image: url('/images/background4.png');
     background-size: cover;
-    /* 铺满全屏 */
     background-position: center;
-    /* 居中 */
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-color: #333;
@@ -28,18 +25,12 @@ body {
     inset: 0;
     z-index: 9999;
     background: rgba(255, 255, 255, 0.7);
-    /* 半透明白 */
     backdrop-filter: blur(15px);
-    /* 磨砂玻璃 */
     -webkit-backdrop-filter: blur(15px);
-
     display: none;
-    /* 初始隐藏 */
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
-    /* 进场动画：让遮罩淡淡地出现 */
     animation: fadeIn 0.4s ease-out;
 }
 
@@ -53,7 +44,6 @@ body {
     }
 }
 
-/* 之前那个旋转的小圆圈 */
 .loading-spinner {
     width: 50px;
     height: 50px;
@@ -64,21 +54,12 @@ body {
     margin-bottom: 20px;
 }
 
-/* 2. 主白框容器 */
 .player-waiting-container {
-    /* 1. 半透明背景：使用 rgba，最后的 0.7 是透明度 (0为全透，1为不透) */
     background: rgba(255, 255, 255, 0.75);
-
-    /* 2. 磨砂玻璃核心：让背后的背景图模糊 */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    /* 兼容 Safari */
-
-    /* 3. 边框优化：使用半透明边框，增加高级感 */
     border: 1px solid rgba(255, 255, 255, 0.3);
     outline: 2px solid #333;
-    /* 保留你原本要求的 2px 深色外框 */
-
     width: 100%;
     max-width: 800px;
     border-radius: 30px;
@@ -86,33 +67,25 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 80vh;
-
-    /* 4. 阴影增强：让透明容器更有立体感 */
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
-/* 3. 核心网格：控制“左上->右上->左下”排序 */
 .players-pill-grid {
     flex: 1;
     display: grid;
-    /* 默认电脑端：2列。Grid 会自动按顺序填充：1号左上，2号右上，3号左中... */
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: min-content;
-    /* 只有有内容时才撑开高度 */
     gap: 20px;
     padding: 10px 0;
     align-content: start;
-    /* 玩家从顶部开始排列 */
 }
 
-/* 手机端适配：屏幕宽度小于 600px 时切换为 1 列 */
 @media (max-width: 600px) {
     .players-pill-grid {
         grid-template-columns: 1fr;
     }
 }
 
-/* 4. 药丸格子样式 (仅当玩家加入时由 JS 生成) */
 .player-pill {
     position: relative;
     background: #fdfafd;
@@ -123,7 +96,6 @@ body {
     align-items: center;
     overflow: hidden;
     transition: transform 0.2s;
-    /* 如果你想让出现的动画更平滑 */
     animation: fadeIn 0.3s ease-out;
 }
 
@@ -139,7 +111,6 @@ body {
     }
 }
 
-/* 图片铺满左侧 45% */
 .pill-bg-img {
     position: absolute;
     left: 0;
@@ -151,7 +122,6 @@ body {
     z-index: 1;
 }
 
-/* 名字显示在右侧 */
 .pill-name {
     width: 100%;
     text-align: center;
@@ -168,7 +138,6 @@ body {
     padding-right: 20px;
 }
 
-/* 5. 顶部 Header & 底部 Footer */
 .header-section {
     display: flex;
     justify-content: space-between;

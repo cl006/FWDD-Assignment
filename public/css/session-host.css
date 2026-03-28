@@ -1,12 +1,9 @@
-/* --- 基础布局 --- */
 body {
     padding: 10px;
     background-image: url('/images/background3.png');
     background-color: #f8f9fa;
     background-size: cover;
-    /* 铺满全屏 */
     background-position: center;
-    /* 居中 */
     background-repeat: no-repeat;
     background-attachment: fixed;
     font-family: 'Segoe UI', sans-serif;
@@ -15,43 +12,29 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    /* 改为 min-height 适配手机滚动 */
 }
 
 .host-container {
     width: 95%;
     max-width: 1000px;
-
-    /* 1. 半透明背景 (白色的 75% 不透明度) */
     background: rgba(255, 255, 255, 0.75);
-
-    /* 2. 毛玻璃模糊效果 */
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    /* 兼容 Safari 浏览器 */
-
-    /* 3. 边框优化：让边框也带一点半透明感，看起来更高级 */
     border: 1px solid rgba(255, 255, 255, 0.4);
     outline: 2px solid #dee2e6;
-    /* 保留你原本的浅色外框线 */
-
     border-radius: 15px;
     padding: 20px;
     display: flex;
     flex-direction: column;
-
-    /* 4. 阴影增强：透明容器需要更深的阴影来拉开层次感 */
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
-/* --- 顶部布局 (适配手机端居中) --- */
 .header-section {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
     flex-wrap: wrap;
-    /* 手机端自动换行 */
     gap: 20px;
 }
 
@@ -85,11 +68,8 @@ body {
     display: block;
 }
 
-/* --- 玩家格子区域 (核心响应式修改) --- */
-/* --- 玩家格子区域 (优化) --- */
 .players-grid {
     display: grid;
-    /* 统一使用 Grid */
     grid-template-columns: repeat(6, 1fr);
     border-top: 2px solid #333;
     border-bottom: 2px solid #333;
@@ -98,7 +78,6 @@ body {
     background-color: #fcfcfc;
 }
 
-/* 确保 slot 能够承载绝对定位的图片 */
 .player-slot {
     border-right: 1px solid #eee;
     position: relative;
@@ -107,15 +86,12 @@ body {
     align-items: center;
     overflow: hidden;
     background-color: #f9f9f9;
-    /* 给个底色，防止图片加载前太单调 */
 }
 
-/* 核心：当 slot 有 .occupied 类时，隐藏等待文字 */
 .player-slot.occupied .waiting-text {
     display: none;
 }
 
-/* 图片样式：确保路径正确后能撑满格子 */
 .slot-bg-img {
     width: 100%;
     height: 100%;
@@ -124,21 +100,16 @@ body {
     top: 0;
     left: 0;
     z-index: 1;
-    /* 图片在 1 层 */
     display: block;
 }
 
-/* 名字标签样式：确保在图片之上 */
 .name-label {
     position: absolute;
     bottom: 12px;
     z-index: 2;
-    /* 名字在 2 层，保证不被图片盖住 */
     background: rgba(255, 255, 255, 0.9);
-    /* ... 保持你之前的其他样式 ... */
 }
 
-/* --- 📱 手机端适配：变为 6 行长条 --- */
 @media (max-width: 768px) {
     .header-section {
         flex-direction: column;
@@ -147,11 +118,8 @@ body {
 
     .players-grid {
         grid-template-columns: 1fr;
-        /* 变成 1 列 */
         grid-template-rows: repeat(6, 1fr);
-        /* 变成 6 行 */
         height: auto;
-        /* 高度根据内容自适应 */
         min-height: 400px;
     }
 
@@ -159,7 +127,6 @@ body {
         border-right: none;
         border-bottom: 1px solid #eee;
         height: 70px;
-        /* 每一行的高度 */
     }
 }
 
@@ -168,7 +135,6 @@ body {
     border-bottom: none;
 }
 
-/* --- 图片与姓名样式 --- */
 .slot-bg-img {
     width: 100%;
     height: 100%;
@@ -200,7 +166,6 @@ body {
     z-index: 1;
 }
 
-/* --- 底部按钮 --- */
 .footer-section {
     display: flex;
     justify-content: space-between;

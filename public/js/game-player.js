@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. 配置与初始化 ---
     const BACKGROUND_THEMES = {
         1: 'round1.png',
         2: 'round2.png',
@@ -9,12 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const BASE_URL = window.location.origin;
 
-    // 关键变量：从全局或 Pug 传入的变量获取
-    // 确保你的 Pug 里有 script. const SESSION_ID = "#{room.session_id}";
     const session_id = typeof SESSION_ID !== 'undefined' ? SESSION_ID : "";
     const room_code = typeof ROOM_ACCESS_CODE !== 'undefined' ? ROOM_ACCESS_CODE : "";
 
-    // 设备检测逻辑
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const mobileZone = document.querySelector('.mobile-only');
     const desktopZone = document.querySelector('.desktop-only');
@@ -27,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (desktopZone) desktopZone.style.display = 'block';
     }
 
-    // --- 2. 核心同步函数 (Cloudflare Tunnel 兼容版) ---
     async function syncGameState() {
         if (!session_id) return;
         try {
@@ -37,22 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             const currentRound = parseInt(data.round_number) || 1;
 
-            // 在 syncGameState 内部
             if ([2, 4, 6].includes(currentRound)) {
                 const lastRedirect = sessionStorage.getItem('last_redirect_round');
                 if (lastRedirect != currentRound) {
                     sessionStorage.setItem('last_redirect_round', currentRound);
 
-                    // ✅ 修正跳转路径为 question-level
                     window.location.href = `/question-level/${session_id}?mode=ROUND&round=${currentRound}`;
                 }
             }
 
-            // 更新 UI 轮次文本
             const roundTextEl = document.querySelector('.value-text');
             if (roundTextEl) roundTextEl.innerText = currentRound;
 
-            // 背景主题切换
             let targetImg = BACKGROUND_THEMES[1];
             if (currentRound >= 6) targetImg = BACKGROUND_THEMES[6];
             else if (currentRound >= 4) targetImg = BACKGROUND_THEMES[4];
@@ -78,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(syncGameState, 5000);
     syncGameState();
 
-    // --- 3. 手动输入验证逻辑 ---
     const manualBtn = document.getElementById('manualSubmit');
     if (manualBtn) {
         manualBtn.onclick = () => {
@@ -91,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // --- 4. QR 扫描逻辑 (对接 Pug 中的 #qr-reader-container) ---
     const scanBtn = document.querySelector('.btn-scan');
     const scannerOverlay = document.getElementById('qr-reader-container');
     const closeScannerBtn = document.getElementById('close-scanner');
@@ -102,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
             scannerOverlay.style.display = 'flex';
 
             if (!html5QrCode) {
-                // 对接到 Pug 里的 id="qr-reader"
                 html5QrCode = new Html5Qrcode("qr-reader");
             }
 
@@ -124,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             promptTitle = "SPECIAL Cell Code (e.g., C05)";
                             shopFlag = false;
                         } else {
-                            // 如果扫到无关的东西（如广告），直接拦截
                             alert("Invalid QR Code! Please scan the official Medieval Map QR.");
                             return;
                         }
@@ -157,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 记录旧的金币值，用于判断是否需要触发数字滚动动画
     let lastCoins = -1;
 
     async function refreshStats() {
@@ -167,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                // 1. 精确查找显示金币的 span
                 const allLabels = document.querySelectorAll('.stat-item .label');
                 let coinLabel = null;
                 allLabels.forEach(el => {
@@ -177,11 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (coinLabel) {
                     const newCoins = parseInt(data.coins);
 
-                    // 2. 如果金币变了，触发滚动动画
                     if (lastCoins !== -1 && lastCoins !== newCoins) {
                         animateValue(coinLabel, lastCoins, newCoins, 1000);
                     } else if (lastCoins === -1) {
-                        // 第一次加载，直接显示
                         coinLabel.innerText = `Coins: ${newCoins}`;
                     }
                     lastCoins = newCoins;
@@ -192,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 数字滚动核心算法
     function animateValue(obj, start, end, duration) {
         let startTimestamp = null;
         const step = (timestamp) => {
@@ -207,9 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.requestAnimationFrame(step);
     }
 
-    // 每 5 秒同步一次金币和状态
     setInterval(refreshStats, 5000);
-    refreshStats(); // 初始加载执行一次
+    refreshStats();
 
     let inventoryData = { cards: [], clues: [], treasures: [] };
 
@@ -233,7 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function switchTab(type) {
-        // 视觉切换按钮状态
         document.querySelectorAll('.tab-btn').forEach(btn => {
             const isMatch = btn.innerText.toLowerCase().includes(type.replace('s', ''));
             btn.classList.toggle('active', isMatch);
@@ -278,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeBag();
     }
 
-    // --- 5. 统一验证 Fetch 函数 ---
     async function handleVerification(cellCode, verifyCode, isShop) {
         if (manualBtn) manualBtn.innerText = "VERIFYING...";
 
@@ -297,25 +276,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
 
             if (data.success) {
-                // A. 商店跳转
                 if (data.outcome === 'SHOP') {
                     alert(data.message);
                     window.location.href = `${BASE_URL}/shop/${session_id}?type=${data.shopType}`;
                 }
-                // B. 空格子逻辑
                 else if (data.redirectType === 'NONE') {
                     alert("🕳️ This cell is empty. Nothing happens.");
                 }
-                // 修改 C. 挑战分流逻辑 部分
+
                 else if (data.redirectType) {
-                    // 强制转换为数据库匹配的大小写 (Easy, Middle, Hard)
                     let level = "Easy";
                     if (data.redirectType === 'MEDIUM') level = "Middle";
-                    if (data.redirectType === 'HARD') level = "Challenge"; // 或者保持 Hard，取决于你 SQL 里的 level 叫什么
+                    if (data.redirectType === 'HARD') level = "Challenge";
 
                     alert(`${data.outcome} DETECTED!\nStarting ${level} challenge...`);
 
-                    // 💡 关键：加上 &mode=SPECIAL 和 &count=1
                     window.location.href = `${BASE_URL}/question-page/${session_id}?level=${level}&mode=SPECIAL&count=1&cell=${cellCode.toUpperCase()}`;
                 }
             } else {
@@ -333,4 +308,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.switchTab = switchTab;
     window.closeBag = closeBag;
     window.useCard = useCard;
+
+    window.openRules = function () {
+        document.getElementById('rules-modal').style.display = 'flex';
+    }
+
+    window.closeRules = function () {
+        document.getElementById('rules-modal').style.display = 'none';
+    }
 });

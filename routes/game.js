@@ -41,13 +41,11 @@ module.exports = (db) => {
         }
     });
 
-    // --- 4. 统一验证逻辑 (核心分流引擎) ---
     router.post('/submit-verification', async (req, res) => {
         const { sessionId, cellCode, verifyCode } = req.body;
         const cleanCell = cellCode.trim().toUpperCase();
 
         try {
-            // --- 第一步：直接从 cells 表获取格子的精确类型 ---
             const [cellRows] = await db.promise().execute(
                 'SELECT cell_type FROM cells WHERE cell_code = ?',
                 [cleanCell]
@@ -59,19 +57,14 @@ module.exports = (db) => {
 
             const dbCellType = cellRows[0].cell_type; // 例如: 'Card Shop', 'Clue Shop', 'Special'
 
-            // --- 第二步：分支判定 ---
-
-            // 【情况 A】：如果是商店类型 (名称中包含 'Shop')
             if (dbCellType.includes('Shop')) {
                 const [sessionRows] = await db.promise().execute(
                     'SELECT shop_access_code FROM game_session WHERE session_id = ?',
                     [sessionId]
                 );
 
-                // 验证商店通用验证码
                 if (sessionRows.length > 0 && sessionRows[0].shop_access_code.toString() === verifyCode.toString()) {
 
-                    // 提取商店关键字存入 shopType (用于 URL 参数)
                     let shopType = 'general';
                     if (dbCellType === 'Clue Shop') shopType = 'clue';
                     if (dbCellType === 'Card Shop') shopType = 'card';
@@ -80,7 +73,7 @@ module.exports = (db) => {
                     return res.json({
                         success: true,
                         outcome: 'SHOP',
-                        shopType: shopType, // 传给前端拼接: /shop/:sessionId?type=card
+                        shopType: shopType,
                         message: `Welcome enter to ${dbCellType}!`
                     });
                 } else {
@@ -88,9 +81,7 @@ module.exports = (db) => {
                 }
             }
 
-            // 【情况 B】：如果是特殊挑战格 (cell_type 为 'Special' 或其他非 Shop 类型)
             else {
-                // 去查专门存储特殊格后果和 4 位验证码的表
                 const [verifyRows] = await db.promise().execute(
                     `SELECT outcome_type FROM special_cell_verification 
                     WHERE session_id = ? AND cell_code = ? AND verify_code = ?`,
@@ -170,16 +161,13 @@ module.exports = (db) => {
     router.get('/get-questions', async (req, res) => {
         let { level, count } = req.query;
 
-        // 1. 映射 Level 格式
         let dbLevel = level ? level.trim() : 'Easy';
         dbLevel = dbLevel.charAt(0).toUpperCase() + dbLevel.slice(1).toLowerCase();
         if (dbLevel === 'Hard') dbLevel = 'Challenge';
 
-        // 2. 确保 count 是真正的数字类型
         const limitCount = parseInt(count) || 1;
 
         try {
-            // 💡 关键修改：将 .execute 改为 .query
             const qSql = `SELECT question_id, question_text, explanation, level 
                         FROM questions WHERE level = ? ORDER BY RAND() LIMIT ?`;
 
@@ -189,7 +177,6 @@ module.exports = (db) => {
                 return res.json({ success: false, message: `No questions found for ${dbLevel}` });
             }
 
-            // 3. 为每道题抓取选项 (同样建议用 .query)
             const questionsWithChoices = await Promise.all(qRows.map(async (q) => {
                 const [cRows] = await db.promise().query(
                     "SELECT choice_id, choice_text, is_answer FROM question_choices WHERE question_id = ?",
@@ -208,11 +195,9 @@ module.exports = (db) => {
     });
 
     router.post('/submit-attempt', async (req, res) => {
-        // 💡 确保前端传来了 cellCode
         const { playerId, sessionId, questionId, selectedChoiceId, isCorrect, mode, level, cellCode } = req.body;
 
         try {
-            // 1. 记录答题尝试
             const insertAttemptSql = `
                 INSERT INTO question_attempts 
                 (player_id, session_id, question_id, selected_choice_id, answered_round) 
@@ -226,15 +211,12 @@ module.exports = (db) => {
                 return res.json({ success: true, correct: false });
             }
 
-            // --- 核心变量初始化 ---
             let coinsToAdd = 0;
             let earnedItems = [];
             let treasureAlreadyLooted = false;
             const lowerLevel = level ? level.toLowerCase() : '';
 
-            // --- 2. 独占宝藏逻辑 (基于你的 ER 图: session_treasures & found_treasures) ---
             if (mode === 'SPECIAL' && cellCode) {
-                // A. 通过格子代码找到对应的宝藏 ID
                 const [tRes] = await db.promise().query(
                     "SELECT treasure_id FROM session_treasures WHERE cell_code = ? AND session_id = ?",
                     [cellCode, sessionId]
@@ -243,17 +225,14 @@ module.exports = (db) => {
                 if (tRes.length > 0) {
                     const targetTreasureId = tRes[0].treasure_id;
 
-                    // B. 检查 found_treasures 表，看是否已经有人领过
                     const [fRes] = await db.promise().query(
                         "SELECT player_id FROM found_treasures WHERE treasure_id = ? AND session_id = ?",
                         [targetTreasureId, sessionId]
                     );
 
                     if (fRes.length > 0) {
-                        // 已经被别人领走了
                         treasureAlreadyLooted = true;
                     } else {
-                        // 💡 如果没被领走，在这里执行锁定逻辑 (插入 found_treasures)
                         await db.promise().execute(
                             `INSERT INTO found_treasures (player_id, session_id, treasure_id, found_round) 
                             VALUES (?, ?, ?, (SELECT round_number FROM game_session WHERE session_id = ?))`,
@@ -263,8 +242,6 @@ module.exports = (db) => {
                 }
             }
 
-            // --- 3. 奖励发放逻辑 ---
-            // 计算金币 (无论宝藏是否被领，答对就给钱)
             if (mode === 'SPECIAL') {
                 if (lowerLevel === 'easy') coinsToAdd = 20;
                 else if (lowerLevel === 'middle' || lowerLevel === 'medium') coinsToAdd = 50;
@@ -273,13 +250,12 @@ module.exports = (db) => {
                 coinsToAdd = (lowerLevel === 'easy') ? 30 : 70;
             }
 
-            // 判定卡片掉落 (只有在宝藏未被领走的情况下才执行掉落)
             if (!treasureAlreadyLooted) {
                 let dropChance = 0;
                 if (mode === 'ROUND') {
                     dropChance = (lowerLevel === 'challenge') ? 0.6 : 0.1;
                 } else if (mode === 'SPECIAL') {
-                    dropChance = 0.4; // Special Cell 默认 40% 掉率
+                    dropChance = 0.4;
                 }
 
                 if (Math.random() < dropChance) {
@@ -288,7 +264,6 @@ module.exports = (db) => {
 
                     let cardValue = (rewardType === 'Movement Card') ? (Math.floor(Math.random() * 3) + 1) : 1;
 
-                    // 存入玩家背包
                     await db.promise().execute(
                         `INSERT INTO player_cards (player_id, card_type, quantity, card_value, obtained_round) 
                         VALUES (?, ?, 1, ?, (SELECT round_number FROM game_session WHERE session_id = ?)) 
@@ -300,7 +275,6 @@ module.exports = (db) => {
                 }
             }
 
-            // --- 4. 数据库更新与 Socket 广播 ---
             await db.promise().execute('UPDATE players SET coins = coins + ? WHERE player_id = ?', [coinsToAdd, playerId]);
 
             const [rows] = await db.promise().execute('SELECT coins FROM players WHERE player_id = ?', [playerId]);
@@ -310,8 +284,6 @@ module.exports = (db) => {
             if (io) {
                 io.to(sessionId).emit('update-coins', { playerId: playerId, newCoins: totalCoins });
             }
-
-            // --- 5. 返回响应 ---
             res.json({
                 success: true,
                 correct: true,
@@ -330,8 +302,6 @@ module.exports = (db) => {
     router.get('/question-level/:sessionId', async (req, res) => {
         const { sessionId } = req.params;
         const { mode, round } = req.query;
-
-        // 💡 确保渲染的文件名是 'question-level'
         res.render('question-level', {
             sessionId: sessionId,
             mode: mode || 'ROUND',
@@ -339,7 +309,6 @@ module.exports = (db) => {
         });
     });
 
-    // 在 routes/game.js 中
     router.get('/game-start-player/:sessionId', async (req, res) => {
         const { sessionId } = req.params;
         const userId = req.session.user_id;
@@ -347,29 +316,21 @@ module.exports = (db) => {
         if (!userId) return res.redirect('/login');
 
         try {
-            // 1. 获取房间数据 (变量名用 rooms)
             const [rooms] = await db.promise().query(
                 'SELECT * FROM game_session WHERE session_id = ?',
                 [sessionId]
             );
-
-            // 2. 获取玩家数据 (变量名用 players)
             const [players] = await db.promise().query(
                 'SELECT * FROM players WHERE session_id = ? AND user_id = ?',
                 [sessionId, userId]
             );
-
-            // 3. 容错处理
             if (rooms.length === 0 || players.length === 0) {
                 console.error("❌ Data not found for:", sessionId);
                 return res.redirect('/');
             }
-
-            // 💡 重点：确保 key 名叫 'room' 和 'player'
-            // 因为你的 game-player.pug 模板里用的是 #{room.round_number} 和 #{player.player_name}
             res.render('game-start-player', {
-                room: rooms[0],    // 对应模板中的 room 对象
-                player: players[0] // 对应模板中的 player 对象
+                room: rooms[0],
+                player: players[0]
             });
 
         } catch (err) {
@@ -400,7 +361,6 @@ module.exports = (db) => {
         const { sessionId } = req.params;
         const shopType = req.query.type || 'clue';
 
-        // 建议从数据库获取最新的金币，而不是只靠 session
         try {
             const [player] = await db.promise().query(
                 "SELECT coins FROM players WHERE user_id = ? AND session_id = ?",
@@ -418,8 +378,6 @@ module.exports = (db) => {
         }
     });
 
-    // 1. 获取当前 Session 所有的宝藏图片（展示在 Clue Shop 货架上）
-    // 1. 定义手动映射表 (与你的 INSERT 语句完全对应)
     const treasureImageMap = {
         'The Kings Seal Ring': 'kings_seal_ring.jpg',
         'Crusaders Shield': 'crusaders_shield.jpg',
@@ -434,7 +392,6 @@ module.exports = (db) => {
     };
 
     router.get('/shop-items/clue', async (req, res) => {
-        // 💡 确保前端传的是 ?session=S0001
         const { session } = req.query;
 
         if (!session) {
@@ -442,7 +399,6 @@ module.exports = (db) => {
         }
 
         try {
-            // 2. 修改 SQL：去掉不存在的 tm.img_url
             const [treasures] = await db.promise().query(
                 `SELECT tm.treasure_id AS id, tm.treasure_name AS name
                 FROM session_treasures st
@@ -450,10 +406,7 @@ module.exports = (db) => {
                 WHERE st.session_id = ?`,
                 [session]
             );
-
-            // 3. 在内存中进行图片映射处理
             const items = treasures.map(t => {
-                // 根据名字找到对应的本地文件名
                 const fileName = treasureImageMap[t.name] || 'default_treasure.png';
 
                 return {
@@ -474,30 +427,24 @@ module.exports = (db) => {
     });
 
     const movementItems = [
-        // --- 增加步数 (Buffs) ---
         { id: 'MOVE_P1', name: 'Swift Boots', icon: '👟', color: '#2ecc71', price: 10, description: 'Add +1 step to your next move.' },
         { id: 'MOVE_P2', name: 'Silver Wing', icon: '💸', color: '#3498db', price: 20, description: 'Add +2 steps to your next move.' },
         { id: 'MOVE_P3', name: 'Golden Chariot', icon: '🏎️', color: '#f1c40f', price: 35, description: 'Add +3 steps to your next move.' },
 
-        // --- 减少步数 (Debuffs/Sabotage) ---
         { id: 'MOVE_M1', name: 'Rusty Chain', icon: '⛓️', color: '#e67e22', price: 8, description: 'Reduce -1 step from next move.' },
         { id: 'MOVE_M2', name: 'Heavy Ankle', icon: '⚓', color: '#e74c3c', price: 15, description: 'Reduce -2 steps from next move.' },
         { id: 'MOVE_M3', name: 'Mud Trap', icon: '🌫️', color: '#95a5a6', price: 25, description: 'Reduce -3 steps from next move.' }
     ];
 
     router.get('/shop-items/movement', async (req, res) => {
-        // 直接返回这个包含 6 种卡片的数组
         res.json({ success: true, items: movementItems });
     });
 
-
-    // 2. 处理线索购买逻辑 (带坐标偏移计算)
     router.post('/purchase', async (req, res) => {
         const { sessionId, itemId, shopType } = req.body;
         const sessionUser = req.session.username;
 
         try {
-            // 1. 获取玩家信息和当前轮次
             const [playerRows] = await db.promise().query(
                 `SELECT p.player_id, p.coins, s.round_number 
                 FROM players p 
@@ -518,7 +465,6 @@ module.exports = (db) => {
 
             let clueData = null;
 
-            // --- 🚀 情况 A: 线索逻辑 (使用 player_clues 表) ---
             if (shopType === 'clue') {
                 const [posRows] = await db.promise().query(
                     "SELECT cell_code FROM session_treasures WHERE session_id = ? AND treasure_id = ?",
@@ -540,15 +486,12 @@ module.exports = (db) => {
                     clueData = { min, max };
                 }
             }
-
-            // --- 🚀 情况 B: 移动卡逻辑 (使用你 SQL 里的 player_cards 表) ---
             else if (shopType === 'movement' || shopType === 'card') {
                 let effectValue = 0;
                 if (itemId.includes('_P')) effectValue = parseInt(itemId.slice(-1));
                 else if (itemId.includes('_M')) effectValue = -parseInt(itemId.slice(-1));
                 else if (itemId === 'CARD_MOVE') effectValue = 2;
 
-                // 根据你的表结构: player_id, card_type, card_value, quantity, obtained_round
                 await db.promise().query(
                     `INSERT INTO player_cards (player_id, card_type, card_value, quantity, obtained_round) 
                     VALUES (?, ?, ?, 1, ?)`,
@@ -556,7 +499,6 @@ module.exports = (db) => {
                 );
             }
 
-            // 2. 扣除金币
             await db.promise().query(
                 "UPDATE players SET coins = coins - ? WHERE player_id = ?",
                 [price, actualPlayerId]
@@ -580,7 +522,7 @@ module.exports = (db) => {
                 {
                     id: 'CARD_MOVE',
                     name: 'Movement Card',
-                    color: '#e67e22', // 橙色
+                    color: '#e67e22',
                     icon: '🏃',
                     price: 15,
                     description: 'Add +2 steps to your next move.'
@@ -588,7 +530,7 @@ module.exports = (db) => {
                 {
                     id: 'CARD_SWAP',
                     name: 'Swap Card',
-                    color: '#9b59b6', // 紫色
+                    color: '#9b59b6',
                     icon: '🔄',
                     price: 25,
                     description: 'Swap positions with a random player.'
@@ -596,7 +538,7 @@ module.exports = (db) => {
                 {
                     id: 'CARD_VERIFY',
                     name: 'Verify Card',
-                    color: '#27ae60', // 绿色
+                    color: '#27ae60',
                     icon: '🔍',
                     price: 30,
                     description: 'Check if a treasure is in your current cell.'
@@ -614,7 +556,7 @@ module.exports = (db) => {
     });
 
     router.get('/play', (req, res) => {
-        const { type } = req.query; // 获取是 'special' 还是 'shop'
+        const { type } = req.query;
 
         const sql = "SELECT room_code FROM game_session WHERE is_active = 1 ORDER BY created_at DESC LIMIT 1";
 
@@ -623,17 +565,13 @@ module.exports = (db) => {
 
             const roomCode = results[0].room_code;
 
-            // 重定向时带上参数：/game/join/ABCD?auto=shop 或 ?auto=special
             const redirectUrl = `/join/${roomCode}?auto=${type || 'special'}`;
             res.redirect(redirectUrl);
         });
     });
 
-    // 注意路径必须完全匹配：/get-inventory/:sessionId
     router.get('/get-inventory/:sessionId', async (req, res) => {
         const { sessionId } = req.params;
-
-        // 1. 获取 Session 中的标识 (根据你之前的描述，这里可能有 username 或 playerName)
         const sessionUser = req.session.username;
         const sessionPlayerName = req.session.playerName;
 
@@ -644,8 +582,6 @@ module.exports = (db) => {
         }
 
         try {
-            // 2. 💡 核心：通过 Relationship 链条锁定唯一的 player_id
-            // 我们通过 username 或 playerName 在当前 session 中找到对应的 player_id
             const [playerRows] = await db.promise().query(
                 `SELECT p.player_id, p.player_name 
                 FROM players p
@@ -661,20 +597,16 @@ module.exports = (db) => {
             const playerId = playerRows[0].player_id;
             const actualName = playerRows[0].player_name;
 
-            // 3. 基于锁定后的 playerId 查询所有背包数据
-            // A. 道具卡
             const [cards] = await db.promise().query(
                 "SELECT card_type, quantity, card_value FROM player_cards WHERE player_id = ?",
                 [playerId]
             );
 
-            // B. 线索 (注意：ER图中表名可能是 player_clues, 字段可能是 players_id)
             const [clues] = await db.promise().query(
                 "SELECT clue_text, source FROM player_clues WHERE player_id = ? AND session_id = ?",
                 [playerId, sessionId]
             );
 
-            // C. 宝藏 (通过 found_treasures 关联 treasures_map)
             const [treasures] = await db.promise().query(
                 `SELECT tm.treasure_name 
                 FROM found_treasures ft 
@@ -682,8 +614,6 @@ module.exports = (db) => {
                 WHERE ft.player_id = ? AND ft.session_id = ?`,
                 [playerId, sessionId]
             );
-
-            // 4. 返回 JSON 响应
             res.json({
                 success: true,
                 playerName: actualName,
@@ -700,35 +630,22 @@ module.exports = (db) => {
 
     router.post('/next-round-trigger', (req, res) => {
         const { sessionId, hostId } = req.body;
-
-        // 调试用：在终端打印一下收到的数据
         console.log("Checking Session:", sessionId, "Input HostId:", hostId);
-
-        // 步骤 1: 验证。确保 SELECT 的字段名和后面 if 判断的名字一模一样
         const checkSql = "SELECT host_user_id FROM game_session WHERE session_id = ?";
 
         db.query(checkSql, [sessionId], (err, results) => {
-            // 如果这里报错，通常是数据库没连上或者表名写错
             if (err) return res.json({ success: false, message: "DB Error: " + err.message });
-
-            // 如果查不到结果，说明 sessionId 传错了
             if (results.length === 0) {
                 return res.json({ success: false, message: "Session not found in Database" });
             }
-
-            // --- 核心修正点：字段名必须匹配 ---
-            const dbHostId = results[0].host_user_id; // 这里改成了 host_user_id
+            const dbHostId = results[0].host_user_id;
 
             if (!dbHostId || dbHostId.toString() !== hostId.toString()) {
                 return res.json({ success: false, message: "Invalid Host ID. Unauthorized action." });
             }
-
-            // 步骤 2: 执行自增
             const updateSql = "UPDATE game_session SET round_number = round_number + 1 WHERE session_id = ?";
             db.query(updateSql, [sessionId], (err) => {
                 if (err) return res.json({ success: false, message: "Update Error" });
-
-                // 步骤 3: 返回新回合数
                 const getNewSql = "SELECT round_number FROM game_session WHERE session_id = ?";
                 db.query(getNewSql, [sessionId], (err, roundResults) => {
                     res.json({
@@ -740,11 +657,8 @@ module.exports = (db) => {
         });
     });
 
-    // 获取特定 Session 的所有特殊格验证码
     router.get('/special-cells/:sessionId', (req, res) => {
         const sessionId = req.params.sessionId;
-
-        // SQL: 从你的验证表中查询数据
         const sql = "SELECT cell_code AS cell_no, verify_code FROM special_cell_verification WHERE session_id = ?";
 
         db.query(sql, [sessionId], (err, results) => {
@@ -769,7 +683,6 @@ module.exports = (db) => {
 
     router.get('/shop-code/:sessionId', (req, res) => {
         const sessionId = req.params.sessionId;
-        // 假设 shop_access_code 存在于 game_session 表中
         const sql = "SELECT shop_access_code FROM game_session WHERE session_id = ?";
 
         db.query(sql, [sessionId], (err, results) => {
@@ -787,7 +700,6 @@ module.exports = (db) => {
                 "SELECT round_number FROM game_session WHERE session_id = ?", [sessionId]
             );
 
-            // 使用更稳健的子查询，确保玩家始终显示
             let query = `
                 SELECT 
                     p.player_id, 

@@ -5,44 +5,35 @@
     justify-content: center;
     height: 100vh;
     width: 100vw;
-    /* 复用背景并加深遮罩，营造神秘感 */
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/round1.png');
     background-size: cover;
     background-position: center;
     font-family: 'serif', 'Palatino', 'Georgia';
-    /* 使用衬线体更有复古感 */
 }
 
-/* --- 标题：暗金色 --- */
 .level-title {
     font-size: 4rem;
     color: #D8B56A;
-    /* 中世纪暗金色 */
     text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
     margin-bottom: 20px;
 }
 
-/* --- 卡片容器 --- */
 .card-wrap {
     display: flex;
     gap: 30px;
     margin-top: 40px;
 }
 
-/* --- 卡片：羊皮纸色 + 金色边框 --- */
 .level-card {
     width: 280px;
     height: 280px;
     border-radius: 40px;
-    /* 稍微减小圆角，更有卡牌感 */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-
-    /* 颜色调整：仿羊皮纸渐变 */
     background: linear-gradient(135deg, #f3e5ab 0%, #e3d2b4 100%);
     border: 4px solid #D8B56A;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -54,11 +45,9 @@
     box-shadow: 0 0 20px rgba(216, 181, 106, 0.8);
 }
 
-/* --- 卡片内文字：深褐色 --- */
 .level-card h2 {
     font-size: 2.5rem;
     color: #3e2b1c;
-    /* 深木色/褐色 */
     margin: 0;
     font-weight: bold;
 }
@@ -70,7 +59,6 @@
     font-weight: bold;
 }
 
-/* --- 移动端适配 --- */
 @media (max-width: 768px) {
     .level-title {
         font-size: 2.5rem;
